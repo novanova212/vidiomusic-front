@@ -13,7 +13,7 @@ export default function AudioPlayer({ song }: Props) {
       )}
 
       <audio controls preload="metadata" style={{ width: '100%' }}>
-        <source src={song.stream_url} type={song.mime_type} />
+        <source src={song.stream_url} type={song.mime_type ?? undefined} />
         Browser Anda tidak mendukung tag audio.
       </audio>
 
