@@ -19,6 +19,7 @@ export default function VideoListPage() {
   return (
     <div>
       <h1>Video</h1>
+      {videos.length === 0 && <p>Belum ada video.</p>}
       <div className="media-grid">
         {videos.map((v) => (
           <MediaCard
@@ -27,6 +28,7 @@ export default function VideoListPage() {
             title={v.title}
             subtitle={`${v.views} kali ditonton`}
             thumbnail={v.thumbnail_url}
+            sourceUrl={v.source_url}
           />
         ))}
       </div>
