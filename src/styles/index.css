@@ -109,3 +109,24 @@ body {
 .btn-back:hover {
   background: #2a2e38;
 }
+
+.detail-actions {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.btn-back, .btn-delete {
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.btn-back {
+  border: 1px solid #2a2e38;
+  background: transparent;
+  color: inherit;
+}
+.btn-delete {
+  border: 0;
+  background: #8b2e2e;
+  color: #fff;
+}
