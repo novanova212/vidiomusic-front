@@ -2,36 +2,58 @@ import { useEffect, useState } from 'react'
 import { mediaApi } from '../api/client'
 import type { Video } from '../types/media'
 import MediaCard from '../components/MediaCard'
+import { featuredVideos } from '../data/featuredVideos'
 
 export default function VideoListPage() {
-  const [videos, setVideos] = useState<Video[]>([])
+  const [uploaded, setUploaded] = useState<Video[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    mediaApi.getVideos().then((res) => {
-      setVideos(res.data)
-      setLoading(false)
-    })
+    mediaApi
+      .getVideos()
+      .then((res) => setUploaded(res.data))
+      .catch(() => setUploaded([]))
+      .finally(() => setLoading(false))
   }, [])
-
-  if (loading) return <p>Memuat daftar video...</p>
 
   return (
     <div>
       <h1>Video</h1>
-      {videos.length === 0 && <p>Belum ada video.</p>}
+      <p>Langsung nonton. Tidak perlu upload dulu.</p>
+
+      <h2>Untuk kamu</h2>
       <div className="media-grid">
-        {videos.map((v) => (
+        {featuredVideos.map((v) => (
           <MediaCard
             key={v.id}
-            to={`/videos/${v.slug}`}
+            to={`/watch/${v.id}`}
             title={v.title}
-            subtitle={`${v.views} kali ditonton`}
+            subtitle="YouTube"
             thumbnail={v.thumbnail_url}
             sourceUrl={v.source_url}
           />
         ))}
       </div>
+
+      {uploaded.length > 0 && (
+        <>
+          <h2>Upload kamu</h2>
+          <div className="media-grid">
+            {uploaded.map((v) => (
+              <MediaCard
+                key={v.id}
+                to={`/videos/${v.slug}`}
+                title={v.title}
+                subtitle={`${v.views} kali ditonton`}
+                thumbnail={v.thumbnail_url}
+                sourceUrl={v.source_url}
+              />
+            ))}
+          </div>
+        </>
+      )}
+
+      {loading && <p>Memuat upload kamu...</p>}
     </div>
   )
 }
