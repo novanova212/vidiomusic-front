@@ -1,5 +1,5 @@
 import axios from 'axios'
-import type { Paginated, Song, Video } from '../types/media'
+import type { DiscoverItem, Paginated, Song, Video } from '../types/media'
 
 // Base URL API Laravel.
 // - Development: Vite mem-proxy '/api' ke backend lokal (lihat vite.config.ts).
@@ -36,6 +36,13 @@ export function addVideo(data: { title: string; description?: string; source_url
 // Tambah musik baru cukup dengan link.
 export function addSong(data: { title: string; artist?: string; source_url: string; cover_url?: string }) {
   return api.post('/songs', data)
+}
+
+// Video/musik OTOMATIS dari YouTube (bukan dari database kita), dipakai
+// di beranda supaya selalu ada isi walau belum ada yang ditambah manual.
+export const discoverApi = {
+  getVideos: () => api.get<DiscoverItem[]>('/discover/videos').then((r) => r.data),
+  getMusic: () => api.get<DiscoverItem[]>('/discover/music').then((r) => r.data),
 }
 
 export default api
