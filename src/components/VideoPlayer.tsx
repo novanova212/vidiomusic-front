@@ -31,7 +31,6 @@ export default function VideoPlayer({ video }: Props) {
           Browser Anda tidak mendukung tag video.
         </video>
       )}
-
       <div className="player-info">
         <h2>{video.title}</h2>
         {video.description && <p>{video.description}</p>}
