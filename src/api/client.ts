@@ -20,6 +20,10 @@ export const mediaApi = {
 
   getSong: (slug: string) =>
     api.get<Song>(`/songs/${slug}`).then((r) => r.data),
+
+  deleteVideo: (slug: string) => api.delete(`/videos/${slug}`),
+
+  deleteSong: (slug: string) => api.delete(`/songs/${slug}`),
 }
 
 // Tambah video baru CUKUP DENGAN LINK (bukan upload file). source_url
