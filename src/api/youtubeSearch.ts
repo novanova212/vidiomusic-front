@@ -1,3 +1,6 @@
+import api from './client'
+import { featuredVideos } from '../data/featuredVideos'
+
 export type SearchVideo = {
   id: string
   title: string
@@ -5,39 +8,34 @@ export type SearchVideo = {
   source_url: string
 }
 
-const INSTANCES = [
-  'https://inv.nadeko.net',
-  'https://invidious.nerdvpn.de',
-  'https://yt.artemislena.eu',
-]
-
 export async function searchYouTube(query: string): Promise<SearchVideo[]> {
-  const q = query.trim()
+  const q = query.trim().toLowerCase()
   if (!q) return []
 
-  for (const base of INSTANCES) {
-    try {
-      const url = `${base}/api/v1/search?q=${encodeURIComponent(q)}&type=video`
-      const res = await fetch(url)
-      if (!res.ok) continue
-      const data = await res.json()
-      if (!Array.isArray(data)) continue
+  const local: SearchVideo[] = featuredVideos
+    .filter((v) => v.title.toLowerCase().includes(q))
+    .map((v) => ({
+      id: v.id,
+      title: v.title,
+      thumbnail_url: v.thumbnail_url,
+      source_url: v.source_url,
+    }))
 
-      const videos = data
-        .filter((v: { type?: string; videoId?: string }) => v.type === 'video' && v.videoId)
-        .slice(0, 24)
-        .map((v: { videoId: string; title: string; videoThumbnails?: { url: string }[] }) => ({
-          id: `yt-${v.videoId}`,
-          title: v.title,
-          thumbnail_url: `https://img.youtube.com/vi/${v.videoId}/hqdefault.jpg`,
-          source_url: `https://www.youtube.com/watch?v=${v.videoId}`,
-        }))
-
-      if (videos.length) return videos
-    } catch {
-      // coba instance berikutnya
-    }
+  let remote: SearchVideo[] = []
+  try {
+    const { data } = await api.get('/youtube/search', { params: { q: query.trim() } })
+    if (Array.isArray(data)) remote = data
+  } catch {
+    remote = []
   }
 
-  return []
+  const seen = new Set(local.map((v) => v.id))
+  const merged = [...local]
+  for (const v of remote) {
+    if (!seen.has(v.id)) {
+      seen.add(v.id)
+      merged.push(v)
+    }
+  }
+  return merged
 }
