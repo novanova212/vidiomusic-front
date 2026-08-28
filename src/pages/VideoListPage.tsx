@@ -27,7 +27,6 @@ export default function VideoListPage() {
             title={v.title}
             subtitle={`${v.views} kali ditonton`}
             thumbnail={v.thumbnail_url}
-            downloadUrl={v.download_url}
           />
         ))}
       </div>
