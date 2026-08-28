@@ -37,3 +37,12 @@ export interface Paginated<T> {
   last_page: number
   total: number
 }
+// Hasil "Discover" (video/musik otomatis dari YouTube, bukan dari
+// database kita). Dipakai khusus di beranda.
+export interface DiscoverItem {
+  youtube_id: string
+  title: string
+  channel_title: string
+  thumbnail_url: string | null
+  watch_url: string
+}
