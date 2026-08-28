@@ -130,3 +130,26 @@ body {
   background: #8b2e2e;
   color: #fff;
 }
+/* Discover (video/musik otomatis dari YouTube) */
+.discover-section { margin-top: 40px; }
+.discover-section h2 { margin-bottom: 4px; }
+.discover-card {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: var(--card);
+  border: none;
+  border-radius: 10px;
+  overflow: hidden;
+  padding: 0 0 12px;
+  cursor: pointer;
+  color: var(--text);
+  font-family: inherit;
+}
+.discover-card img,
+.discover-card .media-card-placeholder {
+  width: 100%; height: 140px; object-fit: cover; background: #2a2e38;
+}
+.discover-card h3, .discover-card p { margin: 8px 12px 0; }
+.discover-card p { color: var(--muted); font-size: 13px; }
+.discover-player { margin-top: 24px; }
