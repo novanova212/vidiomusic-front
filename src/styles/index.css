@@ -153,3 +153,19 @@ body {
 .discover-card h3, .discover-card p { margin: 8px 12px 0; }
 .discover-card p { color: var(--muted); font-size: 13px; }
 .discover-player { margin-top: 24px; }
+
+.search-bar {
+  display: flex;
+  gap: 8px;
+  margin: 12px 0 20px;
+  flex-wrap: wrap;
+}
+.search-bar input {
+  flex: 1;
+  min-width: 200px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #2a2e38;
+  background: #12141a;
+  color: inherit;
+}
