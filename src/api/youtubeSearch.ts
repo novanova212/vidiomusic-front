@@ -23,7 +23,7 @@ export async function searchYouTube(query: string): Promise<SearchVideo[]> {
 
   let remote: SearchVideo[] = []
   try {
-    const { data } = await api.get('/youtube/search', { params: { q: query.trim() } })
+    const { data } = await api.get('/discover/videos', { params: { q: query.trim() } })
     if (Array.isArray(data)) remote = data
   } catch {
     remote = []
