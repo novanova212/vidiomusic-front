@@ -1,59 +1,121 @@
-import { useEffect, useState } from 'react'
+import { FormEvent, useEffect, useState } from 'react'
 import { mediaApi } from '../api/client'
+import { searchYouTube, type SearchVideo } from '../api/youtubeSearch'
 import type { Video } from '../types/media'
 import MediaCard from '../components/MediaCard'
 import { featuredVideos } from '../data/featuredVideos'
 
 export default function VideoListPage() {
   const [uploaded, setUploaded] = useState<Video[]>([])
-  const [loading, setLoading] = useState(true)
+  const [q, setQ] = useState('')
+  const [results, setResults] = useState<SearchVideo[] | null>(null)
+  const [searching, setSearching] = useState(false)
+  const [searchError, setSearchError] = useState('')
 
   useEffect(() => {
     mediaApi
       .getVideos()
       .then((res) => setUploaded(res.data))
       .catch(() => setUploaded([]))
-      .finally(() => setLoading(false))
   }, [])
+
+  async function onSearch(e: FormEvent) {
+    e.preventDefault()
+    const text = q.trim()
+    if (!text) {
+      setResults(null)
+      setSearchError('')
+      return
+    }
+    setSearching(true)
+    setSearchError('')
+    const found = await searchYouTube(text)
+    setResults(found)
+    if (!found.length) setSearchError('Tidak ada hasil. Coba kata lain.')
+    setSearching(false)
+  }
 
   return (
     <div>
       <h1>Video</h1>
-      
 
-      <h2>Untuk kamu</h2>
-      <div className="media-grid">
-        {featuredVideos.map((v) => (
-          <MediaCard
-            key={v.id}
-            to={`/watch/${v.id}`}
-            title={v.title}
-            subtitle="YouTube"
-            thumbnail={v.thumbnail_url}
-            sourceUrl={v.source_url}
-          />
-        ))}
-      </div>
+      <form className="search-bar" onSubmit={onSearch}>
+        <input
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          placeholder="Cari video YouTube..."
+        />
+        <button type="submit" className="btn-primary" disabled={searching}>
+          {searching ? 'Mencari...' : 'Cari'}
+        </button>
+        {results && (
+          <button
+            type="button"
+            className="btn-back"
+            onClick={() => {
+              setResults(null)
+              setQ('')
+              setSearchError('')
+            }}
+          >
+            Beranda
+          </button>
+        )}
+      </form>
 
-      {uploaded.length > 0 && (
+      {searchError && <p>{searchError}</p>}
+
+      {results ? (
         <>
-          <h2>Upload kamu</h2>
+          <h2>Hasil pencarian</h2>
           <div className="media-grid">
-            {uploaded.map((v) => (
+            {results.map((v) => (
               <MediaCard
                 key={v.id}
-                to={`/videos/${v.slug}`}
+                to={`/watch/${v.id}?title=${encodeURIComponent(v.title)}`}
                 title={v.title}
-                subtitle={`${v.views} kali ditonton`}
+                subtitle="YouTube"
                 thumbnail={v.thumbnail_url}
                 sourceUrl={v.source_url}
               />
             ))}
           </div>
         </>
-      )}
+      ) : (
+        <>
+          <h2>Untuk kamu</h2>
+          <div className="media-grid">
+            {featuredVideos.map((v) => (
+              <MediaCard
+                key={v.id}
+                to={`/watch/${v.id}`}
+                title={v.title}
+                subtitle="YouTube"
+                thumbnail={v.thumbnail_url}
+                sourceUrl={v.source_url}
+              />
+            ))}
+          </div>
 
-      {loading && <p>Memuat upload kamu...</p>}
+          {uploaded.length > 0 && (
+            <>
+              <h2>Upload kamu</h2>
+              <div className="media-grid">
+                {uploaded.map((v) => (
+                  <MediaCard
+                    key={v.id}
+                    to={`/videos/${v.slug}`}
+                    title={v.title}
+                    subtitle={`${v.views} kali ditonton`}
+                    thumbnail={v.thumbnail_url}
+                    sourceUrl={v.source_url}
+                  />
+                ))}
+              </div>
+            </>
+          )}
+        </>
+      )}
     </div>
   )
 }
