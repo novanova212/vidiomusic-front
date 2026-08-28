@@ -19,7 +19,7 @@ export default function VideoListPage() {
   return (
     <div>
       <h1>Video</h1>
-      <p>Langsung nonton. Tidak perlu upload dulu.</p>
+      
 
       <h2>Untuk kamu</h2>
       <div className="media-grid">
