@@ -1,7 +1,7 @@
 import { FormEvent, useEffect, useState } from 'react'
-import { mediaApi } from '../api/client'
+import { discoverApi, mediaApi } from '../api/client'
 import { searchYouTube, type SearchVideo } from '../api/youtubeSearch'
-import type { Video } from '../types/media'
+import type { DiscoverItem, Video } from '../types/media'
 import MediaCard from '../components/MediaCard'
 import { featuredVideos } from '../data/featuredVideos'
 
@@ -11,12 +11,16 @@ export default function VideoListPage() {
   const [results, setResults] = useState<SearchVideo[] | null>(null)
   const [searching, setSearching] = useState(false)
   const [searchError, setSearchError] = useState('')
+  const [feed, setFeed] = useState<DiscoverItem[]>([])
+  const [refreshing, setRefreshing] = useState(false)
 
   useEffect(() => {
     mediaApi
       .getVideos()
       .then((res) => setUploaded(res.data))
       .catch(() => setUploaded([]))
+
+    discoverApi.getVideos().then(setFeed).catch(() => setFeed([]))
   }, [])
 
   async function onSearch(e: FormEvent) {
@@ -35,6 +39,16 @@ export default function VideoListPage() {
     setSearching(false)
   }
 
+  async function refreshFeed() {
+    setRefreshing(true)
+    try {
+      setFeed(await discoverApi.getVideos(true))
+    } catch {
+      // biarkan feed lama
+    }
+    setRefreshing(false)
+  }
+
   return (
     <div>
       <h1>Video</h1>
@@ -43,7 +57,7 @@ export default function VideoListPage() {
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Cari video YouTube..."
+          placeholder="Cari video atau nama akun YouTube..."
         />
         <button type="submit" className="btn-primary" disabled={searching}>
           {searching ? 'Mencari...' : 'Cari'}
@@ -83,18 +97,28 @@ export default function VideoListPage() {
         </>
       ) : (
         <>
-          <h2>Untuk kamu</h2>
+          <div className="section-head">
+            <h2>Untuk kamu</h2>
+            <button type="button" className="btn-back" onClick={refreshFeed} disabled={refreshing}>
+              {refreshing ? 'Mengganti...' : 'Ganti video'}
+            </button>
+          </div>
           <div className="media-grid">
-            {featuredVideos.map((v) => (
-              <MediaCard
-                key={v.id}
-                to={`/watch/${v.id}`}
-                title={v.title}
-                subtitle="YouTube"
-                thumbnail={v.thumbnail_url}
-                sourceUrl={v.source_url}
-              />
-            ))}
+            {(feed.length ? feed : featuredVideos).map((v) => {
+              const youtubeId = 'youtube_id' in v && v.youtube_id ? v.youtube_id : String(v.id).replace(/^yt-/, '')
+              const source = 'watch_url' in v && v.watch_url ? v.watch_url : v.source_url
+              const subtitle = 'channel_title' in v && v.channel_title ? v.channel_title : 'YouTube'
+              return (
+                <MediaCard
+                  key={youtubeId}
+                  to={`/watch/yt-${youtubeId}?title=${encodeURIComponent(v.title)}`}
+                  title={v.title}
+                  subtitle={subtitle}
+                  thumbnail={v.thumbnail_url}
+                  sourceUrl={source}
+                />
+              )
+            })}
           </div>
 
           {uploaded.length > 0 && (

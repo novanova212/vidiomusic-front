@@ -21,6 +21,19 @@ export default function HomePage() {
 
   const embedUrl = playing ? getYouTubeEmbedUrl(playing.watch_url) : null
 
+  const [loadingFeed, setLoadingFeed] = useState(false)
+
+  async function refreshVideos() {
+    setLoadingFeed(true)
+    try {
+      const data = await discoverApi.getVideos(true)
+      setVideos(data)
+    } catch {
+      // biarkan yang lama
+    }
+    setLoadingFeed(false)
+  }
+
   return (
     <div>
       <div className="home-hero">
@@ -54,12 +67,13 @@ export default function HomePage() {
 
       {videos.length > 0 && (
         <section className="discover-section">
-          <h2>Video Trending</h2>
-          <div className="media-grid">
-            {videos.map((v) => (
-              <DiscoverCard key={v.youtube_id} item={v} onClick={setPlaying} />
-            ))}
+          <div className="section-head">
+            <h2>Video Trending</h2>
+            <button type="button" className="btn-back" onClick={refreshVideos} disabled={loadingFeed}>
+              {loadingFeed ? 'Mengganti...' : 'Ganti video'}
+            </button>
           </div>
+          ...
         </section>
       )}
 

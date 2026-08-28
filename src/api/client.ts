@@ -41,7 +41,8 @@ export function addSong(data: { title: string; artist?: string; source_url: stri
 // Video/musik OTOMATIS dari YouTube (bukan dari database kita), dipakai
 // di beranda supaya selalu ada isi walau belum ada yang ditambah manual.
 export const discoverApi = {
-  getVideos: () => api.get<DiscoverItem[]>('/discover/videos').then((r) => r.data),
+  getVideos: (refresh = false) =>
+    api.get<DiscoverItem[]>('/discover/videos', { params: refresh ? { refresh: 1 } : {} }).then((r) => r.data),
   getMusic: () => api.get<DiscoverItem[]>('/discover/music').then((r) => r.data),
 }
 

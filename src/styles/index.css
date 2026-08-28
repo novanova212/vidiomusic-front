@@ -169,3 +169,12 @@ body {
   background: #12141a;
   color: inherit;
 }
+
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 16px 0 10px;
+}
+.section-head h2 { margin: 0; }
