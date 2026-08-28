@@ -5,10 +5,9 @@ interface Props {
   title: string
   subtitle?: string | null
   thumbnail?: string | null
-  downloadUrl: string
+  downloadUrl?: string
 }
 
-// Kartu daftar (dipakai di halaman daftar video & daftar musik).
 export default function MediaCard({ to, title, subtitle, thumbnail, downloadUrl }: Props) {
   return (
     <div className="media-card">
@@ -21,9 +20,11 @@ export default function MediaCard({ to, title, subtitle, thumbnail, downloadUrl 
         <h3>{title}</h3>
         {subtitle && <p>{subtitle}</p>}
       </Link>
-      <a href={downloadUrl} download className="btn-download small">
-        Unduh
-      </a>
+      {downloadUrl && (
+        <a href={downloadUrl} download className="btn-download small">
+          Unduh
+        </a>
+      )}
     </div>
   )
 }
