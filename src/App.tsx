@@ -6,6 +6,7 @@ import MusicListPage from './pages/MusicListPage'
 import MusicDetailPage from './pages/MusicDetailPage'
 import UploadPage from './pages/UploadPage'
 import './styles/index.css'
+import WatchPage from './pages/WatchPage'
 
 export default function App() {
   return (
@@ -27,6 +28,7 @@ export default function App() {
           <Route path="/music" element={<MusicListPage />} />
           <Route path="/music/:slug" element={<MusicDetailPage />} />
           <Route path="/upload" element={<UploadPage />} />
+          <Route path="/watch/:id" element={<WatchPage />} />
         </Routes>
       </main>
     </div>
