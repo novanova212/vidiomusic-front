@@ -1,13 +1,18 @@
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { featuredVideos } from '../data/featuredVideos'
 import { getYouTubeEmbedUrl } from '../utils/youtube'
 
 export default function WatchPage() {
   const { id } = useParams<{ id: string }>()
+  const [params] = useSearchParams()
   const navigate = useNavigate()
-  const video = featuredVideos.find((v) => v.id === id)
 
-  if (!video) {
+  const catalog = featuredVideos.find((v) => v.id === id)
+  const youtubeId = (catalog?.source_url.match(/v=([^&]+)/)?.[1] || id?.replace(/^yt-/, '') || '').trim()
+  const title = params.get('title') || catalog?.title || 'Video YouTube'
+  const embed = youtubeId ? getYouTubeEmbedUrl(`https://www.youtube.com/watch?v=${youtubeId}`) : null
+
+  if (!embed) {
     return (
       <div>
         <button type="button" className="btn-back" onClick={() => navigate('/videos')}>
@@ -18,26 +23,23 @@ export default function WatchPage() {
     )
   }
 
-  const embed = getYouTubeEmbedUrl(video.source_url)
-
   return (
     <div>
       <button type="button" className="btn-back" onClick={() => navigate('/videos')}>
         ← Kembali
       </button>
       <div className="player-card">
-        {embed && (
-          <div className="youtube-embed-wrap">
-            <iframe
-              src={embed}
-              title={video.title}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            />
-          </div>
-        )}
+        <div className="youtube-embed-wrap">
+          <iframe
+            src={embed}
+            title={title}
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowFullScreen
+            referrerPolicy="strict-origin-when-cross-origin"
+          />
+        </div>
         <div className="player-info">
-          <h2>{video.title}</h2>
+          <h2>{title}</h2>
         </div>
       </div>
     </div>
