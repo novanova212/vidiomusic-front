@@ -94,3 +94,18 @@ body {
 .upload-form button { align-self: flex-start; }
 .upload-success { color: #2ecc71; }
 .upload-error { color: #e74c3c; }
+
+.btn-back {
+  display: inline-block;
+  margin-bottom: 16px;
+  padding: 8px 14px;
+  border: 1px solid #2a2e38;
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.btn-back:hover {
+  background: #2a2e38;
+}
