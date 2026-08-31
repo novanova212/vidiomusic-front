@@ -5,6 +5,8 @@ import type { DiscoverItem } from '../types/media'
 import DiscoverCard from '../components/DiscoverCard'
 import { getYouTubeEmbedUrl } from '../utils/youtube'
 import { pickRandomVideos } from '../data/featuredVideos'
+import EngagementBar from '../components/EngagementBar'
+import CommentSection from '../components/CommentSection'
 
 function toDiscover(items: ReturnType<typeof pickRandomVideos>): DiscoverItem[] {
   return items.map((v) => ({
@@ -60,6 +62,8 @@ export default function HomePage() {
             <h2>{playing.title}</h2>
             <p>{playing.channel_title}</p>
           </div>
+          <EngagementBar type="youtube" targetKey={playing.youtube_id} recordView />
+          <CommentSection type="youtube" targetKey={playing.youtube_id} />
         </div>
       )}
 
