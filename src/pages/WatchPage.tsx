@@ -39,8 +39,8 @@ export default function WatchPage() {
           <h2>{title}</h2>
         </div>
       </div>
-      <EngagementBar type="youtube" targetKey={youtubeId} recordView />
-      <CommentSection type="youtube" targetKey={youtubeId} />
+      <EngagementBar type="youtube" targetKey={youtubeId} title={title} recordView />
+      <CommentSection type="youtube" targetKey={youtubeId} title={title} />
     </div>
   )
 }
