@@ -1,40 +1,9 @@
 import { FormEvent, useEffect, useState } from 'react'
-import { discoverApi, mediaApi } from '../api/client'
+import { mediaApi } from '../api/client'
 import { searchYouTube, type SearchVideo } from '../api/youtubeSearch'
-import type { DiscoverItem, Video } from '../types/media'
+import type { Video } from '../types/media'
 import MediaCard from '../components/MediaCard'
-import { pickRandomVideos } from '../data/featuredVideos'
-
-type Card = {
-  key: string
-  to: string
-  title: string
-  subtitle: string
-  thumbnail: string | null
-  sourceUrl: string
-}
-
-function cardsFromFeed(items: DiscoverItem[]): Card[] {
-  return items.map((v) => ({
-    key: v.youtube_id,
-    to: `/watch/yt-${v.youtube_id}?title=${encodeURIComponent(v.title)}`,
-    title: v.title,
-    subtitle: v.channel_title || 'YouTube',
-    thumbnail: v.thumbnail_url,
-    sourceUrl: v.watch_url,
-  }))
-}
-
-function cardsFromFeatured(): Card[] {
-  return featuredVideos.map((v) => ({
-    key: v.id,
-    to: `/watch/${v.id}`,
-    title: v.title,
-    subtitle: 'YouTube',
-    thumbnail: v.thumbnail_url,
-    sourceUrl: v.source_url,
-  }))
-}
+import { pickRandomVideos, type FeaturedVideo } from '../data/featuredVideos'
 
 export default function VideoListPage() {
   const [uploaded, setUploaded] = useState<Video[]>([])
@@ -42,12 +11,10 @@ export default function VideoListPage() {
   const [results, setResults] = useState<SearchVideo[] | null>(null)
   const [searching, setSearching] = useState(false)
   const [searchError, setSearchError] = useState('')
-  const [feed, setFeed] = useState<DiscoverItem[]>([])
-  const [refreshing, setRefreshing] = useState(false)
+  const [homeCards, setHomeCards] = useState<FeaturedVideo[]>(() => pickRandomVideos(12))
 
   useEffect(() => {
     mediaApi.getVideos().then((res) => setUploaded(res.data)).catch(() => setUploaded([]))
-    discoverApi.getVideos().then(setFeed).catch(() => setFeed([]))
   }, [])
 
   async function onSearch(e: FormEvent) {
@@ -66,17 +33,9 @@ export default function VideoListPage() {
     setSearching(false)
   }
 
-  async function refreshFeed() {
-    setRefreshing(true)
-    try {
-      setFeed(await discoverApi.getVideos(true))
-    } catch {
-      // biarkan
-    }
-    setRefreshing(false)
+  function refreshFeed() {
+    setHomeCards(pickRandomVideos(12))
   }
-
-const [homeCards, setHomeCards] = useState(() => pickRandomVideos(12))
 
   return (
     <div>
@@ -128,19 +87,19 @@ const [homeCards, setHomeCards] = useState(() => pickRandomVideos(12))
         <>
           <div className="section-head">
             <h2>Untuk kamu</h2>
-            <button type="button" className="btn-back" onClick={refreshFeed} disabled={refreshing}>
-              {refreshing ? 'Mengganti...' : 'Ganti video'}
+            <button type="button" className="btn-back" onClick={refreshFeed}>
+              Ganti video
             </button>
           </div>
           <div className="media-grid">
             {homeCards.map((v) => (
               <MediaCard
-                key={v.key}
-                to={v.to}
+                key={v.id}
+                to={`/watch/${v.id}`}
                 title={v.title}
-                subtitle={v.subtitle}
-                thumbnail={v.thumbnail}
-                sourceUrl={v.sourceUrl}
+                subtitle="YouTube"
+                thumbnail={v.thumbnail_url}
+                sourceUrl={v.source_url}
               />
             ))}
           </div>
