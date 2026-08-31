@@ -76,7 +76,7 @@ export default function VideoListPage() {
     setRefreshing(false)
   }
 
-  const homeCards = feed.length ? cardsFromFeed(feed) : cardsFromFeatured()
+const [homeCards, setHomeCards] = useState(() => pickRandomVideos(12))
 
   return (
     <div>
