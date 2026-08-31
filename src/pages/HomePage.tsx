@@ -5,43 +5,37 @@ import type { DiscoverItem } from '../types/media'
 import DiscoverCard from '../components/DiscoverCard'
 import { getYouTubeEmbedUrl } from '../utils/youtube'
 
-// Beranda: selain link ke daftar video/musik milik sendiri, ada juga
-// bagian "Video & Musik Trending" yang diambil OTOMATIS dari YouTube
-// Data API (bukan dari database kita) — jadi beranda tidak pernah
-// kosong walau belum ada satupun yang ditambahkan manual.
 export default function HomePage() {
   const [videos, setVideos] = useState<DiscoverItem[]>([])
   const [music, setMusic] = useState<DiscoverItem[]>([])
   const [playing, setPlaying] = useState<DiscoverItem | null>(null)
+  const [loadingFeed, setLoadingFeed] = useState(false)
 
   useEffect(() => {
     discoverApi.getVideos().then(setVideos).catch(() => setVideos([]))
     discoverApi.getMusic().then(setMusic).catch(() => setMusic([]))
   }, [])
 
-  const embedUrl = playing ? getYouTubeEmbedUrl(playing.watch_url) : null
-
-  const [loadingFeed, setLoadingFeed] = useState(false)
-
   async function refreshVideos() {
     setLoadingFeed(true)
     try {
-      const data = await discoverApi.getVideos(true)
-      setVideos(data)
+      setVideos(await discoverApi.getVideos(true))
     } catch {
       // biarkan yang lama
     }
     setLoadingFeed(false)
   }
 
+  const embedUrl = playing ? getYouTubeEmbedUrl(playing.watch_url) : null
+
   return (
     <div>
       <div className="home-hero">
         <h1>Vidio Music</h1>
-        <p>Putar dan unduh video & musik langsung dari sumber aslinya.</p>
+        <p>Putar video & musik dari YouTube.</p>
         <div className="home-links">
-          <Link to="/videos" className="btn-primary">Video Saya</Link>
-          <Link to="/music" className="btn-primary">Musik Saya</Link>
+          <Link to="/videos" className="btn-primary">Jelajahi Video</Link>
+          <Link to="/music" className="btn-primary">Jelajahi Musik</Link>
         </div>
       </div>
 
@@ -53,29 +47,29 @@ export default function HomePage() {
               title={playing.title}
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
+              referrerPolicy="strict-origin-when-cross-origin"
             />
           </div>
           <div className="player-info">
             <h2>{playing.title}</h2>
             <p>{playing.channel_title}</p>
-            <a className="btn-download" href={playing.watch_url} target="_blank" rel="noopener noreferrer">
-              Buka di YouTube (unduh sendiri di sana)
-            </a>
           </div>
         </div>
       )}
 
-      {videos.length > 0 && (
-        <section className="discover-section">
-          <div className="section-head">
-            <h2>Video Trending</h2>
-            <button type="button" className="btn-back" onClick={refreshVideos} disabled={loadingFeed}>
-              {loadingFeed ? 'Mengganti...' : 'Ganti video'}
-            </button>
-          </div>
-          ...
-        </section>
-      )}
+      <section className="discover-section">
+        <div className="section-head">
+          <h2>Video Trending</h2>
+          <button type="button" className="btn-back" onClick={refreshVideos} disabled={loadingFeed}>
+            {loadingFeed ? 'Mengganti...' : 'Ganti video'}
+          </button>
+        </div>
+        <div className="media-grid">
+          {videos.map((v) => (
+            <DiscoverCard key={v.youtube_id} item={v} onClick={setPlaying} />
+          ))}
+        </div>
+      </section>
 
       {music.length > 0 && (
         <section className="discover-section">
