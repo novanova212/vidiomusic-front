@@ -60,8 +60,8 @@ export default function HomePage() {
             <h2>{playing.title}</h2>
             <p>{playing.channel_title}</p>
           </div>
-          <EngagementBar type="youtube" targetKey={playing.youtube_id} recordView />
-          <CommentSection type="youtube" targetKey={playing.youtube_id} />
+          <EngagementBar type="youtube" targetKey={playing.youtube_id} title={playing.title} recordView />
+          <CommentSection type="youtube" targetKey={playing.youtube_id} title={playing.title} />
         </div>
       )}
 
