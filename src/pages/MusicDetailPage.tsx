@@ -1,43 +1,35 @@
 import { useEffect, useState } from 'react'
+import { useParams } from 'react-router-dom'
 import { mediaApi } from '../api/client'
 import type { Song } from '../types/media'
-import MediaCard from '../components/MediaCard'
+import AudioPlayer from '../components/AudioPlayer'
+import EngagementBar from '../components/EngagementBar'
+import CommentSection from '../components/CommentSection'
 import BackButton from '../components/BackButton'
 
-export default function MusicListPage() {
-  const [songs, setSongs] = useState<Song[]>([])
-  const [loading, setLoading] = useState(true)
+export default function MusicDetailPage() {
+  const { slug } = useParams<{ slug: string }>()
+  const [song, setSong] = useState<Song | null>(null)
 
   useEffect(() => {
-    mediaApi.getSongs().then((res) => {
-      setSongs(res.data)
-      setLoading(false)
-    })
-  }, [])
+    if (slug) mediaApi.getSong(slug).then(setSong).catch(() => setSong(null))
+  }, [slug])
 
-  if (loading) return (
-    <div>
-      <BackButton fallback="/" />
-      <p>Memuat daftar musik...</p>
-    </div>
-  )
+  if (!song || !slug) return <p>Memuat musik...</p>
 
   return (
     <div>
-      <BackButton fallback="/" />
-      <h1>Musik</h1>
-      <div className="media-grid">
-        {songs.map((s) => (
-          <MediaCard
-            key={s.id}
-            to={`/music/${s.slug}`}
-            title={s.title}
-            subtitle={`${s.artist || 'Musik'} · ${s.views ?? s.plays} ditonton`}
-            thumbnail={s.cover_url}
-            downloadUrl={s.download_url}
-          />
-        ))}
-      </div>
+      <BackButton fallback="/music" />
+      <AudioPlayer song={song} />
+      <EngagementBar
+        type="song"
+        targetKey={slug}
+        title={song.title}
+        initialViews={song.views ?? song.plays}
+        initialLikes={song.likes}
+        initialDislikes={song.dislikes}
+      />
+      <CommentSection type="song" targetKey={slug} title={song.title} />
     </div>
   )
 }
