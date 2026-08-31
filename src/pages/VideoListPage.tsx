@@ -5,6 +5,37 @@ import type { DiscoverItem, Video } from '../types/media'
 import MediaCard from '../components/MediaCard'
 import { featuredVideos } from '../data/featuredVideos'
 
+type Card = {
+  key: string
+  to: string
+  title: string
+  subtitle: string
+  thumbnail: string | null
+  sourceUrl: string
+}
+
+function cardsFromFeed(items: DiscoverItem[]): Card[] {
+  return items.map((v) => ({
+    key: v.youtube_id,
+    to: `/watch/yt-${v.youtube_id}?title=${encodeURIComponent(v.title)}`,
+    title: v.title,
+    subtitle: v.channel_title || 'YouTube',
+    thumbnail: v.thumbnail_url,
+    sourceUrl: v.watch_url,
+  }))
+}
+
+function cardsFromFeatured(): Card[] {
+  return featuredVideos.map((v) => ({
+    key: v.id,
+    to: `/watch/${v.id}`,
+    title: v.title,
+    subtitle: 'YouTube',
+    thumbnail: v.thumbnail_url,
+    sourceUrl: v.source_url,
+  }))
+}
+
 export default function VideoListPage() {
   const [uploaded, setUploaded] = useState<Video[]>([])
   const [q, setQ] = useState('')
@@ -15,11 +46,7 @@ export default function VideoListPage() {
   const [refreshing, setRefreshing] = useState(false)
 
   useEffect(() => {
-    mediaApi
-      .getVideos()
-      .then((res) => setUploaded(res.data))
-      .catch(() => setUploaded([]))
-
+    mediaApi.getVideos().then((res) => setUploaded(res.data)).catch(() => setUploaded([]))
     discoverApi.getVideos().then(setFeed).catch(() => setFeed([]))
   }, [])
 
@@ -44,10 +71,12 @@ export default function VideoListPage() {
     try {
       setFeed(await discoverApi.getVideos(true))
     } catch {
-      // biarkan feed lama
+      // biarkan
     }
     setRefreshing(false)
   }
+
+  const homeCards = feed.length ? cardsFromFeed(feed) : cardsFromFeatured()
 
   return (
     <div>
@@ -104,21 +133,16 @@ export default function VideoListPage() {
             </button>
           </div>
           <div className="media-grid">
-            {(feed.length ? feed : featuredVideos).map((v) => {
-              const youtubeId = 'youtube_id' in v && v.youtube_id ? v.youtube_id : String(v.id).replace(/^yt-/, '')
-              const source = 'watch_url' in v && v.watch_url ? v.watch_url : v.source_url
-              const subtitle = 'channel_title' in v && v.channel_title ? v.channel_title : 'YouTube'
-              return (
-                <MediaCard
-                  key={youtubeId}
-                  to={`/watch/yt-${youtubeId}?title=${encodeURIComponent(v.title)}`}
-                  title={v.title}
-                  subtitle={subtitle}
-                  thumbnail={v.thumbnail_url}
-                  sourceUrl={source}
-                />
-              )
-            })}
+            {homeCards.map((v) => (
+              <MediaCard
+                key={v.key}
+                to={v.to}
+                title={v.title}
+                subtitle={v.subtitle}
+                thumbnail={v.thumbnail}
+                sourceUrl={v.sourceUrl}
+              />
+            ))}
           </div>
 
           {uploaded.length > 0 && (
