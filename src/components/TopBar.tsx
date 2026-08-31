@@ -1,5 +1,5 @@
 import { FormEvent, useEffect, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, NavLink } from 'react-router-dom'
 import { getGuestId, getSavedName, saveName } from '../api/client'
 
 export default function TopBar() {
@@ -33,40 +33,46 @@ export default function TopBar() {
         <span className="logo-text">Vidio Music</span>
       </Link>
 
-      <div className="user-menu" ref={box}>
-        <button type="button" className="user-chip" onClick={() => setOpen((v) => !v)}>
-          <span className="avatar">{initials}</span>
-          <span className="user-chip-meta">
-            <strong>{name.trim() || 'Tamu'}</strong>
-            <small>Menu profil</small>
-          </span>
-        </button>
+      <div className="topbar-right">
+        <nav className="top-nav">
+          <NavLink to="/" end>Beranda</NavLink>
+          <NavLink to="/videos">Video</NavLink>
+          <NavLink to="/music">Musik</NavLink>
+          <NavLink to="/upload">Tambah konten</NavLink>
+        </nav>
 
-        {open && (
-          <div className="user-dropdown">
-            <p className="dropdown-label">Data pengguna</p>
-            <div className="user-data">
-              <span>Nama</span>
-              <b>{name.trim() || 'Belum diisi'}</b>
-              <span>ID</span>
-              <b>{shortId}</b>
-              <span>Status</span>
-              <b>Pengunjung</b>
+        <div className="user-menu" ref={box}>
+          <button type="button" className="user-chip" onClick={() => setOpen((v) => !v)}>
+            <span className="avatar">{initials}</span>
+            <span className="user-chip-meta">
+              <strong>{name.trim() || 'Tamu'}</strong>
+              <small>Menu profil</small>
+            </span>
+          </button>
+
+          {open && (
+            <div className="user-dropdown">
+              <p className="dropdown-label">Data pengguna</p>
+              <div className="user-data">
+                <span>Nama</span>
+                <b>{name.trim() || 'Belum diisi'}</b>
+                <span>ID</span>
+                <b>{shortId}</b>
+                <span>Status</span>
+                <b>Pengunjung</b>
+              </div>
+              <form className="profile-edit" onSubmit={saveProfile}>
+                <input
+                  value={draft}
+                  onChange={(e) => setDraft(e.target.value)}
+                  placeholder="Ubah nama tampilan"
+                  maxLength={40}
+                />
+                <button type="submit" className="btn-primary small">Simpan</button>
+              </form>
             </div>
-            <form className="profile-edit" onSubmit={saveProfile}>
-              <input
-                value={draft}
-                onChange={(e) => setDraft(e.target.value)}
-                placeholder="Ubah nama tampilan"
-                maxLength={40}
-              />
-              <button type="submit" className="btn-primary small">Simpan</button>
-            </form>
-            <Link to="/upload" className="dropdown-link" onClick={() => setOpen(false)}>Tambah video / musik</Link>
-            <Link to="/videos" className="dropdown-link" onClick={() => setOpen(false)}>Halaman video</Link>
-            <Link to="/music" className="dropdown-link" onClick={() => setOpen(false)}>Halaman musik</Link>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </header>
   )
