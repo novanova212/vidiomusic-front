@@ -19,7 +19,7 @@ export default function MovingRail({ title, items, onSelect }: Props) {
     let frame = 0
     const tick = () => {
       if (!paused.current) {
-        el.scrollLeft += 0.6
+        el.scrollLeft += 0.22
         const half = el.scrollWidth / 2
         if (half > 0 && el.scrollLeft >= half) el.scrollLeft -= half
       }
