@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { discoverApi } from '../api/client'
 import type { DiscoverItem } from '../types/media'
@@ -23,6 +23,11 @@ export default function HomePage() {
   const [videos, setVideos] = useState<DiscoverItem[]>(() => toDiscover(pickRandomVideos(12), 'Video'))
   const [music, setMusic] = useState<DiscoverItem[]>(() => toDiscover(pickRandomVideos(10), 'Musik'))
   const [playing, setPlaying] = useState<DiscoverItem | null>(null)
+  const playerRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (playing) playerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }, [playing])
 
   useEffect(() => {
     discoverApi.getVideos().then((data) => {
@@ -38,7 +43,10 @@ export default function HomePage() {
   return (
     <div className="home-page">
       {playing && embedUrl && (
-        <div className="player-card discover-player">
+        <div className="player-card discover-player player-enter" ref={playerRef}>
+          <button type="button" className="btn-back" onClick={() => setPlaying(null)}>
+            ← Kembali
+          </button>
           <div className="youtube-embed-wrap">
             <iframe
               src={embedUrl}
