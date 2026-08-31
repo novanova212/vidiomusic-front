@@ -4,26 +4,32 @@ import { discoverApi } from '../api/client'
 import type { DiscoverItem } from '../types/media'
 import DiscoverCard from '../components/DiscoverCard'
 import { getYouTubeEmbedUrl } from '../utils/youtube'
+import { pickRandomVideos } from '../data/featuredVideos'
+
+function toDiscover(items: ReturnType<typeof pickRandomVideos>): DiscoverItem[] {
+  return items.map((v) => ({
+    youtube_id: v.id.replace(/^yt-/, ''),
+    title: v.title,
+    channel_title: 'YouTube',
+    thumbnail_url: v.thumbnail_url,
+    watch_url: v.source_url,
+  }))
+}
 
 export default function HomePage() {
-  const [videos, setVideos] = useState<DiscoverItem[]>([])
+  const [videos, setVideos] = useState<DiscoverItem[]>(() => toDiscover(pickRandomVideos(12)))
   const [music, setMusic] = useState<DiscoverItem[]>([])
   const [playing, setPlaying] = useState<DiscoverItem | null>(null)
-  const [loadingFeed, setLoadingFeed] = useState(false)
 
   useEffect(() => {
-    discoverApi.getVideos().then(setVideos).catch(() => setVideos([]))
+    discoverApi.getVideos().then((data) => {
+      if (Array.isArray(data) && data.length) setVideos(data)
+    }).catch(() => {})
     discoverApi.getMusic().then(setMusic).catch(() => setMusic([]))
   }, [])
 
-  async function refreshVideos() {
-    setLoadingFeed(true)
-    try {
-      setVideos(await discoverApi.getVideos(true))
-    } catch {
-      // biarkan yang lama
-    }
-    setLoadingFeed(false)
+  function refreshVideos() {
+    setVideos(toDiscover(pickRandomVideos(12)))
   }
 
   const embedUrl = playing ? getYouTubeEmbedUrl(playing.watch_url) : null
@@ -60,8 +66,8 @@ export default function HomePage() {
       <section className="discover-section">
         <div className="section-head">
           <h2>Video Trending</h2>
-          <button type="button" className="btn-back" onClick={refreshVideos} disabled={loadingFeed}>
-            {loadingFeed ? 'Mengganti...' : 'Ganti video'}
+          <button type="button" className="btn-back" onClick={refreshVideos}>
+            Ganti video
           </button>
         </div>
         <div className="media-grid">
