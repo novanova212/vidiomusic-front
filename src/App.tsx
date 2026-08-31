@@ -1,4 +1,4 @@
-import { Route, Routes } from 'react-router-dom'
+import { Route, Routes, useLocation } from 'react-router-dom'
 import HomePage from './pages/HomePage'
 import VideoListPage from './pages/VideoListPage'
 import VideoDetailPage from './pages/VideoDetailPage'
@@ -11,19 +11,23 @@ import SiteFooter from './components/SiteFooter'
 import './styles/index.css'
 
 export default function App() {
+  const location = useLocation()
+
   return (
     <div className="app-shell">
       <TopBar />
       <main className="content">
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/videos" element={<VideoListPage />} />
-          <Route path="/videos/:slug" element={<VideoDetailPage />} />
-          <Route path="/music" element={<MusicListPage />} />
-          <Route path="/music/:slug" element={<MusicDetailPage />} />
-          <Route path="/upload" element={<UploadPage />} />
-          <Route path="/watch/:id" element={<WatchPage />} />
-        </Routes>
+        <div key={location.pathname} className="page-fade">
+          <Routes location={location}>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/videos" element={<VideoListPage />} />
+            <Route path="/videos/:slug" element={<VideoDetailPage />} />
+            <Route path="/music" element={<MusicListPage />} />
+            <Route path="/music/:slug" element={<MusicDetailPage />} />
+            <Route path="/upload" element={<UploadPage />} />
+            <Route path="/watch/:id" element={<WatchPage />} />
+          </Routes>
+        </div>
       </main>
       <SiteFooter />
     </div>
