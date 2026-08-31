@@ -3,6 +3,7 @@ import type {
   DiscoverItem,
   EngagementSummary,
   EngagementType,
+  ActivityHistory,
   MediaComment,
   Paginated,
   Song,
@@ -106,6 +107,9 @@ export const engageApi = {
 
   addComment: (type: EngagementType, key: string, author_name: string, body: string) =>
     api.post<MediaComment>(`/engage/${type}/${encodeURIComponent(key)}/comments`, { author_name, body }).then((r) => r.data),
+
+  history: () =>
+    api.get<ActivityHistory>('/me/history', { params: { name: getSavedName() } }).then((r) => r.data),
 }
 
 export default api
