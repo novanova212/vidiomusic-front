@@ -1,5 +1,6 @@
 import { useState, FormEvent } from 'react'
 import { addSong, addVideo } from '../api/client'
+import BackButton from '../components/BackButton'
 
 // Halaman "Tambah Video/Musik" TANPA UPLOAD FILE. Kamu cukup tempel LINK
 // ke video/musik yang sudah ada di tempat lain (misal: file di Google
@@ -38,6 +39,7 @@ export default function UploadPage() {
 
   return (
     <div className="player-card">
+      <BackButton fallback="/" />
       <h1>Tambah {type === 'video' ? 'Video' : 'Musik'}</h1>
       <p className="upload-hint">
         Tempel link ke video/musik yang sudah ada di tempat lain (Google Drive
