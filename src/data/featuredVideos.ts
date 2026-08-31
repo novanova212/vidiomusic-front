@@ -22,7 +22,7 @@ const ids: [string, string][] = [
   ['Perfect', '2Vv-BfVoq4g'],
   ['Bohemian Rhapsody', 'fJ9rUzIMcZQ'],
   ['Sugar', '09R8_2nJtjg'],
-  ['Counting On Me', 'hT_nvWreIhg'],
+  ['Senorita', 'Pkh8UtuejGw'],
   ['Waka Waka', 'pRpeEdMmmQ0'],
   ['Thunder', 'fKopy74weus'],
   ['Believer', '7wtfhZwyrcc'],
