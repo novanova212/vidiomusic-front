@@ -1,6 +1,8 @@
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { featuredVideos } from '../data/featuredVideos'
 import { getYouTubeEmbedUrl } from '../utils/youtube'
+import EngagementBar from '../components/EngagementBar'
+import CommentSection from '../components/CommentSection'
 
 export default function WatchPage() {
   const { id } = useParams<{ id: string }>()
@@ -12,7 +14,7 @@ export default function WatchPage() {
   const title = params.get('title') || catalog?.title || 'Video YouTube'
   const embed = youtubeId ? getYouTubeEmbedUrl(`https://www.youtube.com/watch?v=${youtubeId}`) : null
 
-  if (!embed) {
+  if (!embed || !youtubeId) {
     return (
       <div>
         <button type="button" className="btn-back" onClick={() => navigate('/videos')}>
@@ -42,6 +44,8 @@ export default function WatchPage() {
           <h2>{title}</h2>
         </div>
       </div>
+      <EngagementBar type="youtube" targetKey={youtubeId} recordView />
+      <CommentSection type="youtube" targetKey={youtubeId} />
     </div>
   )
 }
