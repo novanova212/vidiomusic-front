@@ -1,10 +1,12 @@
 import { FormEvent, useEffect, useState } from 'react'
 import { engageApi, getSavedName, saveName } from '../api/client'
 import type { EngagementType, MediaComment } from '../types/media'
+import { logActivity } from '../utils/activityStore'
 
 interface Props {
   type: EngagementType
   targetKey: string
+  title?: string
 }
 
 function formatWhen(iso: string | null) {
@@ -20,7 +22,7 @@ function formatWhen(iso: string | null) {
   })
 }
 
-export default function CommentSection({ type, targetKey }: Props) {
+export default function CommentSection({ type, targetKey, title }: Props) {
   const [comments, setComments] = useState<MediaComment[]>([])
   const [name, setName] = useState(getSavedName)
   const [body, setBody] = useState('')
@@ -57,10 +59,35 @@ export default function CommentSection({ type, targetKey }: Props) {
       saveName(author)
       setComments((prev) => [created, ...prev])
       setBody('')
+      logActivity({
+        kind: 'comment',
+        target_type: type,
+        target_key: targetKey,
+        title: title || null,
+        body: text,
+        id: created.id,
+      })
     } catch (err: unknown) {
+      saveName(author)
+      const local = {
+        id: Date.now(),
+        author_name: author,
+        body: text,
+        created_at: new Date().toISOString(),
+      }
+      setComments((prev) => [local, ...prev])
+      setBody('')
+      logActivity({
+        kind: 'comment',
+        target_type: type,
+        target_key: targetKey,
+        title: title || null,
+        body: text,
+        id: local.id,
+      })
       const msg =
         (err as { response?: { data?: { message?: string } } })?.response?.data?.message ||
-        'Gagal mengirim komentar. Jalankan migrasi backend dulu.'
+        'Komentar tersimpan di perangkat ini. Backend sedang tidak tersambung.'
       setError(msg)
     } finally {
       setSending(false)

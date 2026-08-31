@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { engageApi } from '../api/client'
 import type { ActivityItem } from '../types/media'
+import { mergeHistory, readActivity } from '../utils/activityStore'
 
 function hrefOf(item: ActivityItem) {
   if (item.target_type === 'video') return `/videos/${item.target_key}`
@@ -24,7 +25,7 @@ function List({ title, items, empty }: { title: string; items: ActivityItem[]; e
       ) : (
         <ul>
           {items.map((item) => (
-            <li key={`${item.kind}-${item.id}`}>
+            <li key={`${item.kind}-${item.id}-${item.target_key}`}>
               <Link to={hrefOf(item)}>
                 <strong>{item.title || item.target_key}</strong>
                 {item.body && <span>{item.body}</span>}
@@ -39,22 +40,25 @@ function List({ title, items, empty }: { title: string; items: ActivityItem[]; e
 }
 
 export default function ActivityHistory() {
-  const [comments, setComments] = useState<ActivityItem[]>([])
-  const [likes, setLikes] = useState<ActivityItem[]>([])
-  const [dislikes, setDislikes] = useState<ActivityItem[]>([])
+  const initial = readActivity()
+  const [comments, setComments] = useState<ActivityItem[]>(initial.comments)
+  const [likes, setLikes] = useState<ActivityItem[]>(initial.likes)
+  const [dislikes, setDislikes] = useState<ActivityItem[]>(initial.dislikes)
 
   useEffect(() => {
     engageApi
       .history()
       .then((data) => {
-        setComments(data.comments || [])
-        setLikes(data.likes || [])
-        setDislikes(data.dislikes || [])
+        const merged = mergeHistory(data)
+        setComments(merged.comments)
+        setLikes(merged.likes)
+        setDislikes(merged.dislikes)
       })
       .catch(() => {
-        setComments([])
-        setLikes([])
-        setDislikes([])
+        const local = readActivity()
+        setComments(local.comments)
+        setLikes(local.likes)
+        setDislikes(local.dislikes)
       })
   }, [])
 
@@ -62,9 +66,9 @@ export default function ActivityHistory() {
     <section className="history-section">
       <h2>Riwayat kamu</h2>
       <div className="history-grid">
-        <List title="Riwayat komentar" items={comments} empty="Belum ada komentar." />
-        <List title="Riwayat suka" items={likes} empty="Belum ada tanda suka." />
-        <List title="Riwayat tidak suka" items={dislikes} empty="Belum ada tanda tidak suka." />
+        <List title="Riwayat komentar" items={comments} empty="Belum ada. Tulis komentar di video atau musik dulu." />
+        <List title="Riwayat suka" items={likes} empty="Belum ada. Tekan Suka di video atau musik dulu." />
+        <List title="Riwayat tidak suka" items={dislikes} empty="Belum ada. Tekan Tidak suka di video atau musik dulu." />
       </div>
     </section>
   )

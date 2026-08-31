@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
 import { engageApi } from '../api/client'
 import type { EngagementSummary, EngagementType } from '../types/media'
+import { clearReaction, logActivity } from '../utils/activityStore'
 
 interface Props {
   type: EngagementType
   targetKey: string
+  title?: string
   recordView?: boolean
   initialViews?: number
   initialLikes?: number
@@ -20,6 +22,7 @@ function formatCount(n: number) {
 export default function EngagementBar({
   type,
   targetKey,
+  title,
   recordView = false,
   initialViews = 0,
   initialLikes = 0,
@@ -53,14 +56,34 @@ export default function EngagementBar({
     }
   }, [type, targetKey, recordView])
 
+  function remember(reaction: 'like' | 'dislike', next: 'like' | 'dislike' | null) {
+    if (next === null) clearReaction(type, targetKey, reaction)
+    else {
+      logActivity({
+        kind: next,
+        target_type: type,
+        target_key: targetKey,
+        title: title || null,
+      })
+    }
+  }
+
   async function onReact(reaction: 'like' | 'dislike') {
     if (busy) return
     setBusy(true)
     try {
       const res = await engageApi.react(type, targetKey, reaction)
       setData(res)
+      remember(reaction, res.my_reaction)
     } catch {
-      alert('Gagal menyimpan reaksi. Pastikan backend sudah dijalankan dan migrasi sudah dijalankan.')
+      const next = data.my_reaction === reaction ? null : reaction
+      setData((prev) => ({
+        ...prev,
+        my_reaction: next,
+        likes: prev.likes + (next === 'like' ? 1 : 0) - (prev.my_reaction === 'like' ? 1 : 0),
+        dislikes: prev.dislikes + (next === 'dislike' ? 1 : 0) - (prev.my_reaction === 'dislike' ? 1 : 0),
+      }))
+      remember(reaction, next)
     } finally {
       setBusy(false)
     }
