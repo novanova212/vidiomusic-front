@@ -3,7 +3,7 @@ import { discoverApi, mediaApi } from '../api/client'
 import { searchYouTube, type SearchVideo } from '../api/youtubeSearch'
 import type { DiscoverItem, Video } from '../types/media'
 import MediaCard from '../components/MediaCard'
-import { featuredVideos } from '../data/featuredVideos'
+import { pickRandomVideos } from '../data/featuredVideos'
 
 type Card = {
   key: string
