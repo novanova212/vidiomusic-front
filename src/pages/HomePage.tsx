@@ -2,51 +2,41 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { discoverApi } from '../api/client'
 import type { DiscoverItem } from '../types/media'
-import DiscoverCard from '../components/DiscoverCard'
 import { getYouTubeEmbedUrl } from '../utils/youtube'
 import { pickRandomVideos } from '../data/featuredVideos'
 import EngagementBar from '../components/EngagementBar'
 import CommentSection from '../components/CommentSection'
+import MovingRail from '../components/MovingRail'
+import ActivityHistory from '../components/ActivityHistory'
 
-function toDiscover(items: ReturnType<typeof pickRandomVideos>): DiscoverItem[] {
+function toDiscover(items: ReturnType<typeof pickRandomVideos>, label = 'YouTube'): DiscoverItem[] {
   return items.map((v) => ({
     youtube_id: v.id.replace(/^yt-/, ''),
     title: v.title,
-    channel_title: 'YouTube',
+    channel_title: label,
     thumbnail_url: v.thumbnail_url,
     watch_url: v.source_url,
   }))
 }
 
 export default function HomePage() {
-  const [videos, setVideos] = useState<DiscoverItem[]>(() => toDiscover(pickRandomVideos(12)))
-  const [music, setMusic] = useState<DiscoverItem[]>([])
+  const [videos, setVideos] = useState<DiscoverItem[]>(() => toDiscover(pickRandomVideos(12), 'Video'))
+  const [music, setMusic] = useState<DiscoverItem[]>(() => toDiscover(pickRandomVideos(10), 'Musik'))
   const [playing, setPlaying] = useState<DiscoverItem | null>(null)
 
   useEffect(() => {
     discoverApi.getVideos().then((data) => {
       if (Array.isArray(data) && data.length) setVideos(data)
     }).catch(() => {})
-    discoverApi.getMusic().then(setMusic).catch(() => setMusic([]))
+    discoverApi.getMusic().then((data) => {
+      if (Array.isArray(data) && data.length) setMusic(data)
+    }).catch(() => {})
   }, [])
-
-  function refreshVideos() {
-    setVideos(toDiscover(pickRandomVideos(12)))
-  }
 
   const embedUrl = playing ? getYouTubeEmbedUrl(playing.watch_url) : null
 
   return (
-    <div>
-      <div className="home-hero">
-        <h1>Vidio Music</h1>
-        <p>Putar video & musik dari YouTube.</p>
-        <div className="home-links">
-          <Link to="/videos" className="btn-primary">Jelajahi Video</Link>
-          <Link to="/music" className="btn-primary">Jelajahi Musik</Link>
-        </div>
-      </div>
-
+    <div className="home-page">
       {playing && embedUrl && (
         <div className="player-card discover-player">
           <div className="youtube-embed-wrap">
@@ -67,30 +57,23 @@ export default function HomePage() {
         </div>
       )}
 
-      <section className="discover-section">
-        <div className="section-head">
-          <h2>Video Trending</h2>
-          <button type="button" className="btn-back" onClick={refreshVideos}>
-            Ganti video
-          </button>
-        </div>
-        <div className="media-grid">
-          {videos.map((v) => (
-            <DiscoverCard key={v.youtube_id} item={v} onClick={setPlaying} />
-          ))}
-        </div>
+      <MovingRail title="Video berjalan" items={videos} onSelect={setPlaying} />
+      <MovingRail title="Musik berjalan" items={music} onSelect={setPlaying} />
+
+      <section className="page-switch">
+        <Link to="/videos" className="switch-card video">
+          <span>Masuk halaman</span>
+          <strong>Video</strong>
+          <em>Cari dan tonton koleksi video</em>
+        </Link>
+        <Link to="/music" className="switch-card music">
+          <span>Masuk halaman</span>
+          <strong>Musik</strong>
+          <em>Putar lagu dan daftar musik</em>
+        </Link>
       </section>
 
-      {music.length > 0 && (
-        <section className="discover-section">
-          <h2>Musik Trending</h2>
-          <div className="media-grid">
-            {music.map((m) => (
-              <DiscoverCard key={m.youtube_id} item={m} onClick={setPlaying} />
-            ))}
-          </div>
-        </section>
-      )}
+      <ActivityHistory />
     </div>
   )
 }
