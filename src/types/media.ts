@@ -1,7 +1,3 @@
-// Tipe data yang cocok dengan response JSON dari backend Laravel.
-// Catatan: tidak ada lagi file_size/duration dari upload, karena file
-// tidak disimpan di server kita (cukup link ke sumber aslinya).
-
 export interface Video {
   id: number
   title: string
@@ -12,6 +8,8 @@ export interface Video {
   mime_type: string | null
   views: number
   downloads: number
+  likes?: number
+  dislikes?: number
   stream_url: string
   download_url: string
 }
@@ -26,7 +24,10 @@ export interface Song {
   cover_url: string | null
   mime_type: string | null
   plays: number
+  views?: number
   downloads: number
+  likes?: number
+  dislikes?: number
   stream_url: string
   download_url: string
 }
@@ -37,12 +38,30 @@ export interface Paginated<T> {
   last_page: number
   total: number
 }
-// Hasil "Discover" (video/musik otomatis dari YouTube, bukan dari
-// database kita). Dipakai khusus di beranda.
+
 export interface DiscoverItem {
   youtube_id: string
   title: string
   channel_title: string
   thumbnail_url: string | null
   watch_url: string
+}
+
+export type EngagementType = 'video' | 'song' | 'youtube'
+
+export interface EngagementSummary {
+  target_type: EngagementType
+  target_key: string
+  views: number
+  likes: number
+  dislikes: number
+  comments_count: number
+  my_reaction: 'like' | 'dislike' | null
+}
+
+export interface MediaComment {
+  id: number
+  author_name: string
+  body: string
+  created_at: string | null
 }
