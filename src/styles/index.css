@@ -276,6 +276,37 @@ body {
 }
 .logo-text { font-weight: 700; font-size: 18px; }
 
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+.top-nav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.top-nav a {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 12px;
+  border-radius: 999px;
+}
+.top-nav a:hover { color: var(--text); background: rgba(255,255,255,.04); }
+.top-nav a.active {
+  color: var(--text);
+  background: rgba(124,92,255,.18);
+}
+@media (max-width: 800px) {
+  .topbar-right { gap: 10px; }
+  .top-nav { gap: 2px; }
+  .top-nav a { padding: 6px 8px; font-size: 12px; }
+  .logo-text, .user-chip-meta { display: none; }
+}
+
 .user-menu { position: relative; }
 .user-chip {
   display: flex;
