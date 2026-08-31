@@ -3,6 +3,7 @@ import { mediaApi } from '../api/client'
 import { searchYouTube, type SearchVideo } from '../api/youtubeSearch'
 import type { Video } from '../types/media'
 import MediaCard from '../components/MediaCard'
+import BackButton from '../components/BackButton'
 import { pickRandomVideos, type FeaturedVideo } from '../data/featuredVideos'
 
 export default function VideoListPage() {
@@ -39,6 +40,7 @@ export default function VideoListPage() {
 
   return (
     <div>
+      <BackButton fallback="/" />
       <h1>Video</h1>
 
       <form className="search-bar" onSubmit={onSearch}>
