@@ -1,25 +1,19 @@
-import { Link, Route, Routes } from 'react-router-dom'
+import { Route, Routes } from 'react-router-dom'
 import HomePage from './pages/HomePage'
 import VideoListPage from './pages/VideoListPage'
 import VideoDetailPage from './pages/VideoDetailPage'
 import MusicListPage from './pages/MusicListPage'
 import MusicDetailPage from './pages/MusicDetailPage'
 import UploadPage from './pages/UploadPage'
-import './styles/index.css'
 import WatchPage from './pages/WatchPage'
+import TopBar from './components/TopBar'
+import SiteFooter from './components/SiteFooter'
+import './styles/index.css'
 
 export default function App() {
   return (
     <div className="app-shell">
-      <nav className="navbar">
-        <Link to="/" className="brand">Vidio Music</Link>
-        <div className="nav-links">
-          <Link to="/videos">Video</Link>
-          <Link to="/music">Musik</Link>
-          <Link to="/upload">Upload</Link>
-        </div>
-      </nav>
-
+      <TopBar />
       <main className="content">
         <Routes>
           <Route path="/" element={<HomePage />} />
@@ -31,6 +25,7 @@ export default function App() {
           <Route path="/watch/:id" element={<WatchPage />} />
         </Routes>
       </main>
+      <SiteFooter />
     </div>
   )
 }
