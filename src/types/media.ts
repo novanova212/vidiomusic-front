@@ -65,3 +65,20 @@ export interface MediaComment {
   body: string
   created_at: string | null
 }
+
+
+export interface ActivityItem {
+  id: number
+  kind: 'comment' | 'like' | 'dislike'
+  target_type: EngagementType
+  target_key: string
+  title: string | null
+  body?: string | null
+  created_at: string | null
+}
+
+export interface ActivityHistory {
+  comments: ActivityItem[]
+  likes: ActivityItem[]
+  dislikes: ActivityItem[]
+}
