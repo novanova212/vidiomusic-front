@@ -44,11 +44,12 @@ export default function VideoDetailPage() {
       <EngagementBar
         type="video"
         targetKey={slug}
+        title={video.title}
         initialViews={video.views}
         initialLikes={video.likes}
         initialDislikes={video.dislikes}
       />
-      <CommentSection type="video" targetKey={slug} />
+      <CommentSection type="video" targetKey={slug} title={video.title} />
     </div>
   )
 }
