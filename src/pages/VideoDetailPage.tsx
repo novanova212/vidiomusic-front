@@ -5,6 +5,7 @@ import type { Video } from '../types/media'
 import VideoPlayer from '../components/VideoPlayer'
 import EngagementBar from '../components/EngagementBar'
 import CommentSection from '../components/CommentSection'
+import BackButton from '../components/BackButton'
 
 export default function VideoDetailPage() {
   const { slug } = useParams<{ slug: string }>()
@@ -34,9 +35,7 @@ export default function VideoDetailPage() {
   return (
     <div>
       <div className="detail-actions">
-        <button type="button" className="btn-back" onClick={() => navigate('/videos')}>
-          ← Kembali
-        </button>
+        <BackButton fallback="/videos" />
         <button type="button" className="btn-delete" onClick={handleDelete} disabled={deleting}>
           {deleting ? 'Menghapus...' : 'Hapus video'}
         </button>
