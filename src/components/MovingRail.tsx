@@ -10,33 +10,48 @@ interface Props {
 export default function MovingRail({ title, items, onSelect }: Props) {
   const scroller = useRef<HTMLDivElement>(null)
   const paused = useRef(false)
+  const resumeTimer = useRef<number | null>(null)
   const loopItems = items.length ? [...items, ...items] : []
+
+  function pauseBriefly(ms = 1400) {
+    paused.current = true
+    if (resumeTimer.current) window.clearTimeout(resumeTimer.current)
+    resumeTimer.current = window.setTimeout(() => {
+      paused.current = false
+    }, ms)
+  }
 
   useEffect(() => {
     const el = scroller.current
     if (!el || items.length === 0) return
 
+    let carry = 0
     let frame = 0
     const tick = () => {
       if (!paused.current) {
-        el.scrollLeft += 0.22
+        carry += 0.4
+        if (carry >= 1) {
+          const step = Math.floor(carry)
+          el.scrollLeft += step
+          carry -= step
+        }
         const half = el.scrollWidth / 2
         if (half > 0 && el.scrollLeft >= half) el.scrollLeft -= half
       }
       frame = requestAnimationFrame(tick)
     }
     frame = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(frame)
+    return () => {
+      cancelAnimationFrame(frame)
+      if (resumeTimer.current) window.clearTimeout(resumeTimer.current)
+    }
   }, [items])
 
   function nudge(dir: number) {
     const el = scroller.current
     if (!el) return
-    paused.current = true
+    pauseBriefly(1500)
     el.scrollBy({ left: dir * 280, behavior: 'smooth' })
-    window.setTimeout(() => {
-      paused.current = false
-    }, 1200)
   }
 
   return (
@@ -57,15 +72,8 @@ export default function MovingRail({ title, items, onSelect }: Props) {
         onMouseLeave={() => {
           paused.current = false
         }}
-        onPointerDown={() => {
-          paused.current = true
-        }}
-        onPointerUp={() => {
-          paused.current = false
-        }}
-        onWheel={() => {
-          paused.current = true
-        }}
+        onPointerDown={() => pauseBriefly(1600)}
+        onWheel={() => pauseBriefly(1600)}
       >
         {loopItems.map((item, i) => (
           <button
