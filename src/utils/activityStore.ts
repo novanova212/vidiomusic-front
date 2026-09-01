@@ -23,6 +23,7 @@ export function readActivity(): ActivityHistory {
 
 function writeActivity(data: ActivityHistory) {
   localStorage.setItem(KEY, JSON.stringify(data))
+  window.dispatchEvent(new Event('vidiomusic-activity'))
 }
 
 function push(list: ActivityItem[], item: ActivityItem) {
