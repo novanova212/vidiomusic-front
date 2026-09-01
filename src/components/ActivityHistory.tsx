@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { engageApi } from '../api/client'
-import type { ActivityItem } from '../types/media'
+import type { ActivityHistory as HistoryData, ActivityItem } from '../types/media'
 import { mergeHistory, readActivity } from '../utils/activityStore'
 
 function hrefOf(item: ActivityItem) {
@@ -14,6 +14,12 @@ function labelOf(type: ActivityItem['target_type']) {
   if (type === 'video') return 'Video'
   if (type === 'song') return 'Musik'
   return 'YouTube'
+}
+
+function apply(data: HistoryData, setComments: (v: ActivityItem[]) => void, setLikes: (v: ActivityItem[]) => void, setDislikes: (v: ActivityItem[]) => void) {
+  setComments(data.comments)
+  setLikes(data.likes)
+  setDislikes(data.dislikes)
 }
 
 function List({ title, items, empty }: { title: string; items: ActivityItem[]; empty: string }) {
@@ -46,20 +52,21 @@ export default function ActivityHistory() {
   const [dislikes, setDislikes] = useState<ActivityItem[]>(initial.dislikes)
 
   useEffect(() => {
+    function refreshLocal() {
+      apply(readActivity(), setComments, setLikes, setDislikes)
+    }
+
     engageApi
       .history()
-      .then((data) => {
-        const merged = mergeHistory(data)
-        setComments(merged.comments)
-        setLikes(merged.likes)
-        setDislikes(merged.dislikes)
-      })
-      .catch(() => {
-        const local = readActivity()
-        setComments(local.comments)
-        setLikes(local.likes)
-        setDislikes(local.dislikes)
-      })
+      .then((data) => apply(mergeHistory(data), setComments, setLikes, setDislikes))
+      .catch(refreshLocal)
+
+    window.addEventListener('vidiomusic-activity', refreshLocal)
+    window.addEventListener('focus', refreshLocal)
+    return () => {
+      window.removeEventListener('vidiomusic-activity', refreshLocal)
+      window.removeEventListener('focus', refreshLocal)
+    }
   }, [])
 
   return (
