@@ -523,3 +523,12 @@ body {
 .rail-card:hover { transform: translateY(-4px); }
 .switch-card { transition: transform .25s ease, filter .25s ease; }
 .switch-card:hover { transform: translateY(-4px); filter: brightness(1.06); }
+
+
+.spotify-embed {
+  width: 100%;
+  height: 152px;
+  border: 0;
+  border-radius: 12px;
+}
+.spotify-embed.tall { height: 352px; }
