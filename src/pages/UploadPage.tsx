@@ -78,7 +78,7 @@ export default function UploadPage() {
           Link {type === 'video' ? 'video' : 'musik'} (source URL)
           <input
             type="url"
-            placeholder="https://..."
+            placeholder={type === 'song' ? 'https://open.spotify.com/track/...' : 'https://...'}
             value={sourceUrl}
             onChange={(e) => setSourceUrl(e.target.value)}
             required
