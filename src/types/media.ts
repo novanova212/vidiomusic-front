@@ -45,6 +45,7 @@ export interface DiscoverItem {
   channel_title: string
   thumbnail_url: string | null
   watch_url: string
+  duration_ms?: number | null
 }
 
 export type EngagementType = 'video' | 'song' | 'youtube' | 'spotify'
