@@ -625,3 +625,67 @@ body {
   border-radius: 12px;
 }
 .spotify-embed.tall { height: 352px; }
+
+/* Daftar musik gaya playlist: nomor urut, cover kecil, judul & artis
+   sejajar, ikon play muncul saat hover. Dipakai di halaman /music. */
+.track-section-title { margin-top: 32px; }
+.track-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 12px;
+}
+.track-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  text-decoration: none;
+  color: var(--text);
+  background: transparent;
+  transition: background .16s ease;
+}
+.track-row:hover { background: var(--card); }
+.track-num {
+  width: 22px;
+  flex-shrink: 0;
+  text-align: center;
+  color: var(--muted);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+.track-cover {
+  width: 46px;
+  height: 46px;
+  border-radius: 6px;
+  object-fit: cover;
+  background: #2a2e38;
+  flex-shrink: 0;
+}
+.track-cover-placeholder {}
+.track-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+.track-title, .track-artist {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.track-title { font-size: 14px; font-weight: 600; }
+.track-artist { font-size: 12px; color: var(--muted); }
+.track-play {
+  flex-shrink: 0;
+  color: var(--muted);
+  font-size: 12px;
+  opacity: 0;
+  transition: opacity .16s ease, color .16s ease;
+}
+.track-row:hover .track-play { opacity: 1; color: var(--accent); }
+@media (max-width: 800px) {
+  .track-play { display: none; }
+}
