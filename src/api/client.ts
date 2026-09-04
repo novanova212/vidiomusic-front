@@ -89,7 +89,12 @@ export function addSong(data: { title: string; artist?: string; source_url: stri
 export const discoverApi = {
   getVideos: (refresh = false) =>
     api.get<DiscoverItem[]>('/discover/videos', { params: refresh ? { refresh: 1 } : {} }).then((r) => r.data),
-  getMusic: () => api.get<DiscoverItem[]>('/discover/music').then((r) => r.data),
+  getMusic: (opts: { q?: string; refresh?: boolean } = {}) =>
+    api
+      .get<DiscoverItem[]>('/discover/music', {
+        params: opts.q ? { q: opts.q } : opts.refresh ? { refresh: 1 } : {},
+      })
+      .then((r) => r.data),
 }
 
 export const engageApi = {
