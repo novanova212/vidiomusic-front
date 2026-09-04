@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { discoverApi } from '../api/client'
+import { discoverApi, mediaApi } from '../api/client'
 import type { DiscoverItem } from '../types/media'
 import { getYouTubeEmbedUrl } from '../utils/youtube'
+import { getSpotifyEmbedUrl, isSpotifyUrl } from '../utils/spotify'
 import { pickRandomVideos } from '../data/featuredVideos'
 import EngagementBar from '../components/EngagementBar'
 import CommentSection from '../components/CommentSection'
@@ -21,7 +22,9 @@ function toDiscover(items: ReturnType<typeof pickRandomVideos>, label = 'YouTube
 
 export default function HomePage() {
   const [videos, setVideos] = useState<DiscoverItem[]>(() => toDiscover(pickRandomVideos(12), 'Video'))
-  const [music, setMusic] = useState<DiscoverItem[]>(() => toDiscover(pickRandomVideos(10), 'Musik'))
+  // "Musik berjalan" sekarang murni musik (Spotify), bukan video YouTube lagi.
+  // Kosong dulu sampai data asli datang dari backend, biar tidak salah nampilin video.
+  const [music, setMusic] = useState<DiscoverItem[]>([])
   const [playing, setPlaying] = useState<DiscoverItem | null>(null)
   const playerRef = useRef<HTMLDivElement>(null)
 
@@ -43,16 +46,41 @@ export default function HomePage() {
     discoverApi.getVideos().then((data) => {
       if (Array.isArray(data) && data.length) setVideos(data)
     }).catch(() => {})
+
+    // Sumber utama: lagu asli dari Spotify (lewat backend, tanpa nyimpen
+    // file apa pun secara lokal — cuma metadata + embed, sama seperti
+    // video YouTube di atas).
     discoverApi.getMusic().then((data) => {
-      if (Array.isArray(data) && data.length) setMusic(data)
+      if (Array.isArray(data) && data.length) {
+        setMusic(data)
+        return
+      }
+      // Kalau Spotify belum dikonfigurasi di backend (SPOTIFY_CLIENT_ID/SECRET
+      // kosong), fallback ke lagu yang sudah ditambahkan lewat halaman
+      // "Tambah konten" (kalau linknya Spotify) — tetap musik asli, bukan video.
+      mediaApi.getSongs().then((res) => {
+        const fallback: DiscoverItem[] = res.data
+          .filter((s) => isSpotifyUrl(s.source_url))
+          .map((s) => ({
+            youtube_id: s.slug,
+            title: s.title,
+            channel_title: s.artist || 'Musik',
+            thumbnail_url: s.cover_url,
+            watch_url: s.source_url,
+          }))
+        if (fallback.length) setMusic(fallback)
+      }).catch(() => {})
     }).catch(() => {})
   }, [])
 
-  const embedUrl = playing ? getYouTubeEmbedUrl(playing.watch_url) : null
+  const isMusic = playing ? isSpotifyUrl(playing.watch_url) : false
+  const youtubeEmbedUrl = playing && !isMusic ? getYouTubeEmbedUrl(playing.watch_url) : null
+  const spotifyEmbedUrl = playing && isMusic ? getSpotifyEmbedUrl(playing.watch_url) : null
+  const embedType = playing ? (isMusic ? 'spotify' : 'youtube') : null
 
   return (
     <div className="home-page">
-      {playing && embedUrl && (
+      {playing && (youtubeEmbedUrl || spotifyEmbedUrl) && (
         <div className="player-card discover-player player-enter" ref={playerRef}>
           <div className="player-close-bar">
             <button type="button" className="btn-back" onClick={() => setPlaying(null)}>
@@ -68,21 +96,33 @@ export default function HomePage() {
               ✕
             </button>
           </div>
-          <div className="youtube-embed-wrap">
+
+          {spotifyEmbedUrl ? (
             <iframe
-              src={embedUrl}
+              className="spotify-embed"
+              src={spotifyEmbedUrl}
               title={playing.title}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-              referrerPolicy="strict-origin-when-cross-origin"
+              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+              loading="lazy"
             />
-          </div>
+          ) : (
+            <div className="youtube-embed-wrap">
+              <iframe
+                src={youtubeEmbedUrl ?? undefined}
+                title={playing.title}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                referrerPolicy="strict-origin-when-cross-origin"
+              />
+            </div>
+          )}
+
           <div className="player-info">
             <h2>{playing.title}</h2>
             <p>{playing.channel_title}</p>
           </div>
-          <EngagementBar type="youtube" targetKey={playing.youtube_id} title={playing.title} recordView />
-          <CommentSection type="youtube" targetKey={playing.youtube_id} title={playing.title} />
+          <EngagementBar type={embedType!} targetKey={playing.youtube_id} title={playing.title} recordView />
+          <CommentSection type={embedType!} targetKey={playing.youtube_id} title={playing.title} />
         </div>
       )}
 
