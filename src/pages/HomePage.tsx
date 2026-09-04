@@ -29,6 +29,16 @@ export default function HomePage() {
     if (playing) playerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }, [playing])
 
+  // Tutup pemutar dengan tombol Escape supaya makin mudah keluar.
+  useEffect(() => {
+    if (!playing) return
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') setPlaying(null)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [playing])
+
   useEffect(() => {
     discoverApi.getVideos().then((data) => {
       if (Array.isArray(data) && data.length) setVideos(data)
@@ -44,9 +54,20 @@ export default function HomePage() {
     <div className="home-page">
       {playing && embedUrl && (
         <div className="player-card discover-player player-enter" ref={playerRef}>
-          <button type="button" className="btn-back" onClick={() => setPlaying(null)}>
-            ← Kembali
-          </button>
+          <div className="player-close-bar">
+            <button type="button" className="btn-back" onClick={() => setPlaying(null)}>
+              ← Kembali
+            </button>
+            <button
+              type="button"
+              className="player-close-btn"
+              onClick={() => setPlaying(null)}
+              aria-label="Tutup pemutar"
+              title="Tutup pemutar"
+            >
+              ✕
+            </button>
+          </div>
           <div className="youtube-embed-wrap">
             <iframe
               src={embedUrl}
@@ -71,12 +92,12 @@ export default function HomePage() {
       <section className="page-switch">
         <Link to="/videos" className="switch-card video">
           <span>Masuk halaman</span>
-          <strong>Video</strong>
+          <strong>Video <span className="switch-arrow">→</span></strong>
           <em>Cari dan tonton koleksi video</em>
         </Link>
         <Link to="/music" className="switch-card music">
           <span>Masuk halaman</span>
-          <strong>Musik</strong>
+          <strong>Musik <span className="switch-arrow">→</span></strong>
           <em>Putar lagu dan daftar musik</em>
         </Link>
       </section>
