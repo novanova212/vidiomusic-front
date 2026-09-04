@@ -663,7 +663,12 @@ body {
   background: #2a2e38;
   flex-shrink: 0;
 }
-.track-cover-placeholder {}
+.track-cover-placeholder {
+  background: linear-gradient(135deg, #2a2e38, #3a3f4b);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 .track-meta {
   display: flex;
   flex-direction: column;
