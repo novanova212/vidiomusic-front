@@ -157,7 +157,44 @@ body {
 }
 .discover-card h3, .discover-card p { margin: 8px 12px 0; }
 .discover-card p { color: var(--muted); font-size: 13px; }
-.discover-player { margin-top: 24px; }
+.discover-player {
+  margin-top: 24px;
+  /* Kompensasi tinggi topbar (sticky) supaya saat scrollIntoView,
+     bagian atas player-card tidak ketutup topbar. */
+  scroll-margin-top: 76px;
+}
+
+/* Baris tombol tutup pemutar. Dibuat sticky di bawah topbar supaya
+   selalu terlihat & bisa diklik kapan pun, tidak ketutup header. */
+.player-close-bar {
+  position: sticky;
+  top: 68px;
+  z-index: 15;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.player-close-bar .btn-back { margin-bottom: 0; }
+.player-close-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid #2a2e38;
+  background: var(--card);
+  color: var(--text);
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  box-shadow: var(--shadow);
+  transition: background .2s ease, transform .2s ease;
+}
+.player-close-btn:hover {
+  background: #2a2e38;
+  transform: scale(1.06);
+}
 
 .search-bar {
   display: flex;
@@ -431,6 +468,8 @@ body {
   margin: 12px 0 36px;
 }
 .switch-card {
+  position: relative;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -444,8 +483,13 @@ body {
 .switch-card.video { background: linear-gradient(135deg, #6a4dff, #3b82f6); }
 .switch-card.music { background: linear-gradient(135deg, #14b8a6, #3b82f6); }
 .switch-card span { opacity: .85; font-size: 13px; }
-.switch-card strong { font-size: 32px; letter-spacing: -.03em; }
+.switch-card strong { font-size: 32px; letter-spacing: -.03em; display: flex; align-items: center; gap: 8px; }
 .switch-card em { font-style: normal; opacity: .9; }
+.switch-arrow {
+  display: inline-block;
+  opacity: 0;
+  transform: translateX(-8px);
+}
 
 .history-section h2 { margin: 0 0 14px; }
 .history-grid {
@@ -497,10 +541,31 @@ body {
 }
 
 @media (max-width: 800px) {
-  .page-switch, .history-grid, .footer-inner { grid-template-columns: 1fr; display: grid; }
+  .history-grid, .footer-inner { grid-template-columns: 1fr; display: grid; }
   .footer-links { flex-wrap: wrap; }
   .content { padding: 20px 16px 36px; }
   .topbar { padding: 12px 16px; }
+
+  /* Tombol "Masuk halaman Video/Musik" jadi kotak berdampingan di mobile. */
+  .page-switch {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin: 12px 0 28px;
+  }
+  .switch-card {
+    aspect-ratio: 1 / 1;
+    min-height: 0;
+    padding: 14px;
+    border-radius: 18px;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    gap: 2px;
+  }
+  .switch-card span { font-size: 11px; }
+  .switch-card strong { font-size: 20px; }
+  .switch-card em { font-size: 11px; }
+  .switch-arrow { display: none; }
 }
 
 .page-fade {
@@ -522,7 +587,35 @@ body {
 }
 .rail-card:hover { transform: translateY(-4px); }
 .switch-card { transition: transform .25s ease, filter .25s ease; }
-.switch-card:hover { transform: translateY(-4px); filter: brightness(1.06); }
+
+/* Animasi geser saat hover — hanya untuk perangkat dengan mouse (laptop/desktop).
+   Di HP/tablet (layar sentuh) style ini otomatis tidak aktif. */
+@media (hover: hover) and (pointer: fine) {
+  .switch-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -60%;
+    width: 40%;
+    height: 100%;
+    background: linear-gradient(115deg, transparent, rgba(255,255,255,.28), transparent);
+    transform: skewX(-18deg);
+    transition: left .55s ease;
+    pointer-events: none;
+  }
+  .switch-arrow {
+    transition: transform .25s ease, opacity .25s ease;
+  }
+  .switch-card:hover {
+    transform: translateY(-4px) translateX(4px);
+    filter: brightness(1.06);
+  }
+  .switch-card:hover::after { left: 130%; }
+  .switch-card:hover .switch-arrow {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
 
 
 .spotify-embed {
