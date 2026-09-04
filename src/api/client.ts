@@ -1,4 +1,4 @@
-import axios from 'axios'
+import axios, { AxiosHeaders } from 'axios'
 import type {
   DiscoverItem,
   EngagementSummary,
@@ -54,9 +54,10 @@ const api = axios.create({
 
 api.interceptors.request.use((config) => {
   const guestId = getGuestId()
-  const headers = config.headers as { set?: (k: string, v: string) => void } & Record<string, string>
-  if (typeof headers?.set === 'function') headers.set('X-Guest-Id', guestId)
-  else config.headers = { ...headers, 'X-Guest-Id': guestId }
+  if (!(config.headers instanceof AxiosHeaders)) {
+    config.headers = new AxiosHeaders(config.headers)
+  }
+  config.headers.set('X-Guest-Id', guestId)
   return config
 })
 
