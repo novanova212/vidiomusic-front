@@ -47,7 +47,7 @@ export interface DiscoverItem {
   watch_url: string
 }
 
-export type EngagementType = 'video' | 'song' | 'youtube'
+export type EngagementType = 'video' | 'song' | 'youtube' | 'spotify'
 
 export interface EngagementSummary {
   target_type: EngagementType
